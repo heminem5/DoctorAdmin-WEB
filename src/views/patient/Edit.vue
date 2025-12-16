@@ -1,0 +1,73 @@
+<template>
+    <el-form label-position="left" label-width="100px" ref="formRef" :model="form" style="max-width: 600px" :rules="rules">
+                                                                            <el-form-item label="用户名" prop="username">
+                        <el-input disabled maxlength="20" v-model="form.username" />
+                    </el-form-item>
+                                                                                    <el-form-item label="密码" prop="password">
+                        <el-input  maxlength="20" v-model="form.password" />
+                    </el-form-item>
+                                                                                    <el-form-item label="姓名" prop="name">
+                        <el-input  maxlength="18" v-model="form.name" />
+                    </el-form-item>
+                                                                                    <el-form-item label="性别" prop="gender">
+                        <el-select  filterable v-model="form.gender" clearable placeholder="Select">
+                            <el-option v-for="item in genderOptionList" :key="item.name" :label="item.name" :value="item.name"/>
+                        </el-select>
+                    </el-form-item>
+                                                                                    <el-form-item label="电话" prop="tele">
+                        <el-input  maxlength="11" v-model="form.tele" />
+                    </el-form-item>
+                                                                                    <el-form-item label="身份证" prop="idnum">
+                        <el-input  maxlength="18" v-model="form.idnum" />
+                    </el-form-item>
+                                                                                    <el-form-item label="病情" prop="bingq">
+                        <el-select  filterable v-model="form.bingq" clearable placeholder="Select">
+                            <el-option v-for="item in bingqOptionList" :key="item.name" :label="item.name" :value="item.name"/>
+                        </el-select>
+                    </el-form-item>
+                                        </el-form>
+</template>
+<script setup>
+    import {  reactive, ref } from 'vue'
+    const formRef = ref();
+    let user = Cache.getUser()//当前登录用户
+    let form = ref({});
+    let callBack;//保存成功回调函数
+    const rules = reactive({
+        username:{required: true, message: "用户名必填", trigger: "blur"},
+        name:{required: true, message: "姓名必填", trigger: "blur"},
+        idnum:{required: true, message: "身份证必填", trigger: "blur"},
+    })
+
+     let genderOptionList = ref([  { name:'男'}, { name:'女'}, ]) //性别 下拉框数据
+     let bingqOptionList = ref([  { name:'轻度'}, { name:'中度'}, { name:'重度抑郁'}, ]) //病情 下拉框数据
+
+    const render = async (id,loadThisPage) => {
+        Msg.loading("加载中..")
+        let {data} = await Http.get(`/patient/detail`, {id: id});
+        form.value = data
+        callBack = loadThisPage
+        Msg.loading(false)
+    }
+    const submit = async () => {
+
+        await formRef.value.validate(async (isValid, invalidFields) => {
+            if(! isValid) {
+                Msg.error(Helper.getFirstMessage(invalidFields));
+                return;
+            }
+            let {success,message} = await Http.post(`/patient/save`, form.value);
+            if(! success) {
+                Msg.error(message);
+                return;
+            }
+            Msg.success(message);
+            Dialog.close();
+            callBack(form.value)
+        });
+    }
+
+    defineExpose({render,submit});
+
+</script>
+
