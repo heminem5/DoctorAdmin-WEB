@@ -120,18 +120,6 @@
           >
             删除
           </button>
-          <el-button
-            v-if="conf.EnableChat"
-            link
-            type="primary"
-            size="small"
-            @click="
-              chatDetail(scope.row.id, scope.row.role, scope.row.username)
-            "
-          >
-            <el-icon :size="20"><ChatDotSquare /></el-icon
-            ><!--联系-->
-          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -153,13 +141,7 @@
 let conf = codeying;
 import { Helper } from "core";
 let user = Cache.getUser(); //当前登录用户
-import {
-  Timer,
-  ChatDotSquare,
-  Delete,
-  Edit,
-  InfoFilled,
-} from "@element-plus/icons-vue";
+import { Timer, Delete, Edit, InfoFilled } from "@element-plus/icons-vue";
 import { onMounted } from "vue";
 import DetailPage from "./Detail";
 import EditPage from "./Edit";
@@ -246,17 +228,6 @@ const onDelete = async (id) => {
       Msg.success(message);
       await loadThisPage();
     }
-  });
-};
-
-//chat
-import Chat from "../../components/chat/Chat";
-const chatDetail = (rid, rtype, hisName) => {
-  const op = Dialog.open(Chat, `与"${hisName}"的聊天`)
-    .setCancelText("")
-    .setConfirmText("");
-  op.mounted((c) => {
-    c.render(rid, rtype, hisName);
   });
 };
 
